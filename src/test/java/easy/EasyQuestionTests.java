@@ -4,8 +4,10 @@ import org.junit.jupiter.api.Test;
 import testclasses.PoorHashDistribution;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -166,5 +168,31 @@ public class EasyQuestionTests {
 
         thread1.join();
         thread2.join();
+    }
+
+    @Test
+    public void stream() {
+        List<Integer> values = List.of(1, 1, 2, 2, 3, 4, 5);
+        assertIterableEquals(
+                List.of(2, 4, 6, 8, 10),
+                values.stream()
+                        .distinct()
+                        .map(v -> v * 2)
+                        .toList());
+
+        assertEquals(5, values.stream().max(Integer::compareTo).get());
+        assertEquals(1, values.stream().min(Integer::compareTo).get());
+    }
+
+    @Test
+    public void primitiveStreams() {
+        assertEquals(10, IntStream.range(1, 5).sum());
+        assertIterableEquals(
+                List.of(2, 4, 6, 8, 10),
+                IntStream.rangeClosed(1, 10)
+                        .filter(i -> i % 2 == 0)
+                        .boxed()
+                        .toList()
+        );
     }
 }
