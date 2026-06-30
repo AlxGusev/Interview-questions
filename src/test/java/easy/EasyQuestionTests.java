@@ -3,10 +3,11 @@ package easy;
 import org.junit.jupiter.api.Test;
 import testclasses.PoorHashDistribution;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.net.URISyntaxException;
+import java.util.*;
+import java.util.function.Supplier;
 import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -194,5 +195,59 @@ public class EasyQuestionTests {
                         .boxed()
                         .toList()
         );
+    }
+
+    @Test
+    public void tryCatchFinallyBlocks() {
+        Supplier<Integer> intSupplier = () -> {
+            try {
+                return 1;
+            } catch (Exception ignored) {
+                return 0;
+            } finally {
+                return 5;
+            }
+        };
+
+        assertNotEquals(1, intSupplier.get());
+        assertEquals(5, intSupplier.get());
+
+        Supplier<Integer> intSupplierWithException = () -> {
+            try {
+                throw new RuntimeException();
+            } catch (Exception ignored) {
+                return 4;
+            } finally {
+                return 10;
+            }
+        };
+
+        assertNotEquals(1, intSupplierWithException.get());
+        assertEquals(10, intSupplierWithException.get());
+    }
+
+    @Test
+    public void tryCatchFinallyWithResource() throws URISyntaxException, FileNotFoundException {
+        Scanner scanner = null;
+        try {
+            scanner = new Scanner(new File(getClass().getClassLoader().getResource("text.txt").toURI()));
+            while (scanner.hasNextLine()) {
+                System.out.println(scanner.nextLine());
+                throw new RuntimeException("Reading Error");
+            }
+        } finally {
+            if (scanner != null) {
+                scanner.close();
+            }
+        }
+    }
+
+    @Test
+    public void tryWithResource() {
+        try (Scanner scanner = new Scanner(new File(getClass().getClassLoader().getResource("text.txt").toURI()))) {
+            while (scanner.hasNextLine()) {
+                System.out.println(scanner.nextLine());
+            }
+        } catch (FileNotFoundException | URISyntaxException ignored) {};
     }
 }
