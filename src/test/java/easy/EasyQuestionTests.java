@@ -5,6 +5,7 @@ import testclasses.PoorHashDistribution;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -76,5 +77,20 @@ public class EasyQuestionTests {
         Integer value = map.get(new PoorHashDistribution(String.valueOf(7)));
 
         assertEquals(7, value);
+    }
+
+    @Test
+    public void optionalOf() {
+        assertThrows(NullPointerException.class, () -> Optional.of(null));
+
+        assertEquals(Optional.empty(), Optional.of(new PoorHashDistribution(null)).map(PoorHashDistribution::getValue));
+        assertThrows(NullPointerException.class, () -> Optional.of(null).orElseGet(() -> "Default"));
+    }
+
+    @Test
+    public void optionalOfNullable() {
+        assertEquals(Optional.empty(), Optional.ofNullable(null));
+
+        assertDoesNotThrow(() -> Optional.ofNullable(null).orElseGet(() -> "Default"));
     }
 }
