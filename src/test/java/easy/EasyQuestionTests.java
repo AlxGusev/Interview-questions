@@ -93,4 +93,78 @@ public class EasyQuestionTests {
 
         assertDoesNotThrow(() -> Optional.ofNullable(null).orElseGet(() -> "Default"));
     }
+
+    @Test
+    public void threadLocal() throws InterruptedException {
+        Runnable sharedRun = new Runnable() {
+            private final ThreadLocal<Integer> threadLocal = new ThreadLocal<>();
+
+            @Override
+            public void run() {
+                System.out.println(
+                        Thread.currentThread().getName() +
+                                " Before: " + threadLocal.get());
+                threadLocal.set((int) (Math.random() * 1000));
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException ignored) {
+                }
+                System.out.println(
+                        Thread.currentThread().getName() +
+                                "After: " + threadLocal.get());
+            }
+        };
+
+        Thread firstThread = new Thread(sharedRun, "First Thread");
+        Thread secondThread = new Thread(sharedRun, "Second Thread");
+
+        firstThread.start();
+        secondThread.start();
+
+        firstThread.join();
+        secondThread.join();
+    }
+
+    @Test
+    public void inheritableThreadLocal() throws InterruptedException {
+        ThreadLocal<String> threadLocal = new ThreadLocal<>();
+        InheritableThreadLocal<String> inheritableThreadLocal = new InheritableThreadLocal<>();
+
+        Thread thread1 = new Thread(() -> {
+            System.out.println("*** Thread 1 ***");
+            threadLocal.set("Thread 1 - ThreadLocal");
+            inheritableThreadLocal.set("Thread 1 - InheritableThreadLocal");
+
+            System.out.println(threadLocal.get());
+            System.out.println(inheritableThreadLocal.get());
+
+            Thread childThread = new Thread(() -> {
+                System.out.println("*** Child Thread ***");
+                System.out.println(threadLocal.get());
+                System.out.println(inheritableThreadLocal.get());
+            });
+
+            childThread.start();
+            try {
+                childThread.join();
+            } catch (InterruptedException ignored) {
+            }
+        });
+
+        Thread thread2 = new Thread(() -> {
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException ignored) {
+            }
+            System.out.println("*** Thread 2 ***");
+            System.out.println(threadLocal.get());
+            System.out.println(inheritableThreadLocal.get());
+        });
+
+        thread1.start();
+        thread2.start();
+
+        thread1.join();
+        thread2.join();
+    }
 }
