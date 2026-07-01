@@ -1,4 +1,4 @@
-package easy;
+package easy.tests;
 
 import org.junit.jupiter.api.Test;
 import testclasses.PoorHashDistribution;
@@ -86,7 +86,7 @@ public class EasyQuestionTests {
     public void optionalOf() {
         assertThrows(NullPointerException.class, () -> Optional.of(null));
 
-        assertEquals(Optional.empty(), Optional.of(new PoorHashDistribution(null)).map(PoorHashDistribution::getValue));
+        assertEquals(Optional.empty(), Optional.of(new PoorHashDistribution(null)).map(PoorHashDistribution::value));
         assertThrows(NullPointerException.class, () -> Optional.of(null).orElseGet(() -> "Default"));
     }
 

@@ -2,19 +2,9 @@ package testclasses;
 
 import java.util.Objects;
 
-public class PoorHashDistribution {
+public record PoorHashDistribution(String value) {
 
     private final static String POOR_HASH = "POOR_HASH";
-
-    private final String value;
-
-    public PoorHashDistribution(String value) {
-        this.value = value;
-    }
-
-    public String getValue() {
-        return value;
-    }
 
     @Override
     public boolean equals(Object o) {
