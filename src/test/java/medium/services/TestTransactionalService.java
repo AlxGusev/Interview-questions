@@ -38,9 +38,7 @@ public class TestTransactionalService {
 
     @Transactional(propagation = Propagation.REQUIRES_NEW)
     private void privateTransaction() {
-        int privateI = 1;
-        int privateJ = 2;
-        System.out.println("privateI + privateJ = " + privateI + privateJ);
+
     }
 
     @Transactional
@@ -48,6 +46,24 @@ public class TestTransactionalService {
         int longI = 1;
         int longJ = 2;
         Thread.sleep(10000);
-        System.out.println("longI + longJ = " + longI + longJ);
+        System.out.println("longTransaction: longI + longJ = " + longI + longJ);
+    }
+
+    @Async
+    @Transactional
+    public void asyncTransaction() {
+        int i = 1;
+        int y = 2;
+        privateTransaction();
+        System.out.println("asyncTransaction: i + y = " + i + y);
+    }
+
+    @Transactional
+    @Async
+    public void asyncWithTransaction() {
+        int i = 1;
+        int y = 2;
+        privateTransaction();
+        System.out.println("transactionalAsync: i + y = " + i + y);
     }
 }
