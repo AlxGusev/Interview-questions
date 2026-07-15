@@ -1,0 +1,29 @@
+EXERCISE #1
+Find the highest populated city of each country:
+
+EXERCISE #2
+Find the most populated city of each continent:
+
+EXERCISE #3
+Find the number of movies of each director: Try to solve this problem by assuming that Director class has not the member movies.
+
+EXERCISE #4
+Find the number of genres of each director's movies:
+
+EXERCISE #5
+Find the highest populated capital city:
+
+EXERCISE #6
+Find the highest populated capital city of each continent:
+
+EXERCISE #7
+Sort the countries by number of their cities in descending order:
+
+EXERCISE #8
+Find the list of movies having the genres "Drama" and "Comedy" only:
+
+EXERCISE #9
+Group the movies by the year and list them:
+
+EXERCISE #10
+Sort the countries by their population densities in descending order ignoring zero population countries:
