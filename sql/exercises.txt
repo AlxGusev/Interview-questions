@@ -1,7 +1,11 @@
 Task 1: Second-Highest Salary
-Write a query to find the second-highest salary in the employees table.
+Write a query to find the second-highest salary in the employee's table.
 Handle the case where there might be ties, and the case where no second-highest exists.
 
 Task 2: Rank Employees by Salary Within Department (Window Functions)
 For each employee, show their name, department, salary, and their salary rank within their department (highest = 1).
 Use RANK() or DENSE_RANK(). Also show the difference from that department's average salary.
+
+Task 3: Find Duplicate Rows
+Given the employee's table might have duplicate (name, department_id) combinations by data-entry error,
+write a query to find all duplicate groups and count how many times each appears.

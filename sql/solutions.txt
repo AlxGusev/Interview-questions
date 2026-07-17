@@ -1,15 +1,24 @@
 Task 1:
-SELECT MAX(salary) AS second_highest_salary
+SELECT
+    MAX(salary) AS second_highest_salary
 FROM employees
 WHERE salary < (SELECT MAX(salary) FROM employees);
 
 Task 2:
 SELECT
-    e.name AS employee_name,
-    d.name AS department_name,
-    e.salary,
-    RANK() OVER (PARTITION BY e.department_id ORDER BY e.salary DESC) AS salary_rank,
-    ROUND(e.salary - AVG(e.salary) OVER (PARTITION BY e.department_id), 2) AS diff_from_dept_avg
+       e.name AS employee_name
+     , d.name AS department_name
+     , e.salary, RANK() OVER (PARTITION BY e.department_id ORDER BY e.salary DESC) AS salary_rank
+     , ROUND(e.salary - AVG(e.salary) OVER (PARTITION BY e.department_id), 2) AS diff_from_dept_avg
 FROM employees e
 LEFT JOIN departments d ON e.department_id = d.id
 ORDER BY department_name, salary_rank;
+
+Task 3:
+SELECT
+       e.name AS employee_name
+     , e.department_id AS department_id
+     , COUNT(*) AS duplicates
+FROM employees e
+GROUP BY e.name, e.department_id
+HAVING COUNT(*) > 1;
