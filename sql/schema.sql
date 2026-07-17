@@ -1,6 +1,3 @@
--- ============================================
--- SCHEMA
--- ============================================
 DROP TABLE IF EXISTS orders;
 DROP TABLE IF EXISTS employees;
 DROP TABLE IF EXISTS departments;
@@ -74,3 +71,50 @@ SELECT
     CURRENT_DATE - (floor(random() * 730))::INT,
     round((10 + random() * 990)::NUMERIC, 2)
 FROM generate_series(1, 2000) AS s(i);
+
+
+DROP TABLE IF EXISTS customers;
+DROP TABLE IF EXISTS customer_orders;
+-- ============================================
+-- CUSTOMERS
+-- ============================================
+CREATE TABLE customers (
+                           customer_id SERIAL,
+                           email VARCHAR(100),
+                           first_name VARCHAR(50),
+                           last_name VARCHAR(50)
+);
+
+-- ============================================
+-- CUSTOMER_ORDERS
+-- ============================================
+CREATE TABLE customer_orders (
+                        order_id SERIAL,
+                        customer_id INT,
+                        order_date DATE NOT NULL,
+                        amount NUMERIC(10, 2),
+                        status VARCHAR(50)
+);
+
+
+-- ============================================
+-- GENERATION CUSTOMERS
+-- ============================================
+INSERT INTO customers (first_name, last_name, email)
+SELECT
+    'Customer_' || g.i,
+    'LastName_' || g.i,
+    'customer_' || g.i || '@example.com'
+FROM generate_series(1, 400001, 1) AS g(i);
+
+
+-- ============================================
+--  GENERATION CUSTOMER ORDERS
+-- ============================================
+INSERT INTO customer_orders (customer_id, order_date, amount, status)
+SELECT
+    (RANDOM() * 400000)::INT + 1,
+    '2024-01-01'::DATE + (RANDOM() * 365)::INT,
+    (RANDOM() * 500)::NUMERIC(10, 2),
+    CASE WHEN RANDOM() > 0.5 THEN 'completed' ELSE 'pending' END
+FROM generate_series(1, 40_000_000);

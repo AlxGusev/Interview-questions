@@ -16,3 +16,6 @@ Find all departments that have more than 5 employees and an average salary above
 Task 5: Self-Join (Employees and Managers)
 Write a query returning each employee's name alongside their manager's name (employees.manager_id references employees.id).
 Include employees who have no manager (should show NULL, not be excluded).
+
+Task 6: Optimize a Slow Query
+Propose the index(es) needed and explain the reasoning.

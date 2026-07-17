@@ -1,10 +1,14 @@
-Task 1:
+********************************************
+TASK 1
+********************************************
 SELECT
     MAX(salary) AS second_highest_salary
 FROM employees
 WHERE salary < (SELECT MAX(salary) FROM employees);
 
-Task 2:
+********************************************
+TASK 2
+********************************************
 SELECT
        e.name AS employee_name
      , d.name AS department_name
@@ -14,7 +18,9 @@ FROM employees e
 LEFT JOIN departments d ON e.department_id = d.id
 ORDER BY department_name, salary_rank;
 
-Task 3:
+********************************************
+TASK 3
+********************************************
 SELECT
        e.name AS employee_name
      , e.department_id AS department_id
@@ -23,7 +29,9 @@ FROM employees e
 GROUP BY e.name, e.department_id
 HAVING COUNT(*) > 1;
 
-Task 4:
+********************************************
+TASK 4
+********************************************
 SELECT
       d.name AS department_name
     , COUNT(e.id) AS employee_count
@@ -33,9 +41,110 @@ LEFT JOIN employees e ON d.id = e.department_id
 GROUP BY d.name
 HAVING COUNT(e.id) > 5 AND AVG(e.salary) > 70000;
 
-Task 5:
+********************************************
+TASK 5
+********************************************
 SELECT
        e1.name AS employee_name
      , e2.name AS manager_name
 FROM employees e1
 LEFT JOIN employees e2 ON e1.manager_id = e2.id;
+
+********************************************
+TASK 6
+********************************************
+-- ============================================
+-- CUSTOMER SEARCH // B-TREE INDEX
+-- ============================================
+EXPLAIN ANALYZE SELECT * FROM customers WHERE customer_id = 145065;
+-- Parallel Seq Scan on customers (cost=0.00..6628.34 rows=1 width=61)
+-- Execution Time: 499.804 ms
+
+CREATE INDEX idx_customers_customer_id ON customers(customer_id);
+EXPLAIN SELECT * FROM customers WHERE customer_id = 145065;
+-- Index Scan using idx_customers_customer_id on customers (cost=0.42..8.44 rows=1 width=61) (actual time=0.017..0.018 rows=1 loops=1)
+-- Execution Time: 0.036 ms
+
+-- ============================================
+-- CUSTOMER ORDERS SEARCH
+-- ============================================
+EXPLAIN ANALYZE SELECT * FROM customer_orders WHERE customer_id = 145065;
+-- Parallel Seq Scan on customer_orders (cost=0.00..502451.33 rows=42 width=26) (actual time=450.692..22734.199 rows=35 loops=3)
+-- Execution Time: 22808.256 ms
+
+CREATE INDEX idx_customer_orders_customer_id ON customer_orders(customer_id);
+-- Bitmap Heap Scan on customer_orders (cost=5.22..400.93 rows=100 width=26) (actual time=1.054..42.394 rows=105 loops=1)
+-- Execution Time: 0.171 ms
+
+-- ============================================
+-- SEARCH BY CUSTOMER EMAIL // HASH INDEX
+-- ============================================
+EXPLAIN ANALYZE SELECT * FROM customers WHERE email = 'customer_4455@example.com';
+-- Parallel Seq Scan on customers (cost=0.00..6628.34 rows=1 width=61) (actual time=356.526..540.754 rows=0 loops=3)
+-- Execution Time: 598.286 ms
+
+CREATE INDEX idx_customers_hash_email ON customers USING HASH (email);
+-- Index Scan using idx_customers_hash_email on customers (cost=0.00..8.02 rows=1 width=61) (actual time=1.262..1.305 rows=1 loops=1)
+-- Execution Time: 1.340 ms
+
+EXPLAIN ANALYZE SELECT * FROM customers WHERE email > 'customer_87';
+-- Parallel Seq Scan on customers (cost=0.00..6628.34 rows=6289 width=61) (actual time=1.804..473.280 rows=4815 loops=3)
+-- Execution Time: 506.455 ms
+-- Hash index doesn't work with a comparison operator
+DROP INDEX idx_customers_hash_email;
+
+CREATE INDEX idx_customers_email ON customers(email);
+-- Bitmap Index Scan on idx_customers_email (cost=0.00..481.62 rows=15093 width=0) (actual time=2.515..2.515 rows=14445 loops=1)
+-- Execution Time: 4.022 ms
+
+-- ============================================
+-- SEARCH CUSTOMER BY FIRST AND LAST NAME
+-- ============================================
+EXPLAIN ANALYZE SELECT * FROM customers WHERE first_name like 'Customer_1%';
+-- Seq Scan on customers (cost=0.00..9545.01 rows=109091 width=61) (actual time=0.010..1031.348 rows=111111 loops=1)
+-- Execution Time: 1035.804 ms
+
+CREATE INDEX idx_customers_first_name ON customers(first_name);
+-- Seq Scan on customers (cost=0.00..9545.01 rows=109091 width=61) (actual time=0.010..837.652 rows=111111 loops=1)
+-- Execution Time: 841.843 ms
+-- Index on text is inefficient because regexp is used
+
+-- ======================================================
+-- SEARCH CUSTOMER BY FIRST AND LAST NAME // GIN INDEX
+-- ======================================================
+CREATE EXTENSION pg_trgm;
+CREATE INDEX idx_customers_full_text_name ON customers  USING gin (first_name gin_trgm_ops);
+-- Bitmap Heap Scan on customers (cost=807.19..6715.83 rows=109091 width=61) (actual time=83.908..123.410 rows=111111 loops=1)
+-- Execution Time: 126.640 ms
+-- GIN index is more efficient on full-text searches
+
+-- ============================================
+-- INDEX ON JOINS
+-- ============================================
+EXPLAIN ANALYZE SELECT o.order_id, c.first_name
+                FROM customer_orders o
+                JOIN customers c ON o.customer_id = c.customer_id
+                WHERE o.order_date = '2024-12-25';
+-- Parallel Hash Join (cost=9272.01..513413.04 rows=45269 width=19) (actual time=28845.382..28973.574 rows=36615 loops=3)
+-- Execution Time: 29118.507 ms
+
+CREATE INDEX idx_customer_orders_order_date ON customer_orders(order_date);
+-- Gather (cost=11489.11..371905.21 rows=108646 width=19) (actual time=20759.365..20953.570 rows=109844 loops=1)
+-- Execution Time: 9405.584 ms
+
+-- ============================================
+-- ONLY NECESSARY DATA (COLUMN_NAMES vs *)
+-- ============================================
+EXPLAIN ANALYZE SELECT *
+                FROM customer_orders
+                WHERE customer_id = 24;
+-- Bitmap Heap Scan on customer_orders o (cost=5.22..400.93 rows=100 width=26) (actual time=1.258..44.776 rows=121 loops=1)
+-- Execution Time: 0.190 ms
+
+EXPLAIN ANALYZE SELECT order_id
+                FROM customer_orders
+                WHERE customer_id = 33;
+-- Bitmap Heap Scan on customer_orders o (cost=5.22..400.93 rows=100 width=8) (actual time=0.034..0.139 rows=121 loops=1)
+-- Execution Time: 0.161 ms
+-- It may be more efficient for tables with many columns
+-- Conversely, it may be less efficient if all columns except one are selected.
