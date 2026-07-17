@@ -22,3 +22,13 @@ SELECT
 FROM employees e
 GROUP BY e.name, e.department_id
 HAVING COUNT(*) > 1;
+
+Task 4:
+SELECT
+      d.name AS department_name
+    , COUNT(e.id) AS employee_count
+    , ROUND(AVG(e.salary), 2) AS average_salary
+FROM departments d
+LEFT JOIN employees e ON d.id = e.department_id
+GROUP BY d.name
+HAVING COUNT(e.id) > 5 AND AVG(e.salary) > 70000;

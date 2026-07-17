@@ -9,3 +9,6 @@ Use RANK() or DENSE_RANK(). Also show the difference from that department's aver
 Task 3: Find Duplicate Rows
 Given the employee's table might have duplicate (name, department_id) combinations by data-entry error,
 write a query to find all duplicate groups and count how many times each appears.
+
+Task 4: GROUP BY + HAVING
+Find all departments that have more than 5 employees and an average salary above 70000.
