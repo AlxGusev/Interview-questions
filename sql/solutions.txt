@@ -32,3 +32,10 @@ FROM departments d
 LEFT JOIN employees e ON d.id = e.department_id
 GROUP BY d.name
 HAVING COUNT(e.id) > 5 AND AVG(e.salary) > 70000;
+
+Task 5:
+SELECT
+       e1.name AS employee_name
+     , e2.name AS manager_name
+FROM employees e1
+LEFT JOIN employees e2 ON e1.manager_id = e2.id;
