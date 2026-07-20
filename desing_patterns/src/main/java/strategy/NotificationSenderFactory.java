@@ -1,7 +1,4 @@
-import strategy.EmailNotificationSender;
-import strategy.NotificationSender;
-import strategy.PushNotificationSender;
-import strategy.SmsNotificationSender;
+package strategy;
 
 public class NotificationSenderFactory {
 
